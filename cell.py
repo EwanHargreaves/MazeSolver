@@ -1,5 +1,6 @@
 from point import Point
 from line import Line
+import time
 
 class Cell:
     def __init__(self, window=None):
@@ -48,10 +49,13 @@ class Cell:
 
         
     def draw_move(self, to_cell, undo=False):
+        if not self._win: return #testing
         start_point = self.get_centre_point()
         end_point = to_cell.get_centre_point()
         colour = "gray" if undo else "red"
         self._win.draw_line(Line(start_point,end_point),colour)
+        self._win.redraw()
+        time.sleep(0.05)
     
     def get_centre_point(self):
         return Point((self._x1 + self._x2)/2,(self._y1 + self._y2)/2)

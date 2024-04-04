@@ -46,13 +46,7 @@ class Maze:
             self.all_cells[i][j]._visited = True
 
             while True:
-                left = [i-1,j] if i-1 >= 0 else None
-                right = [i+1,j] if i+1 < len(self.all_cells) else None
-                up = [i,j-1] if j-1 >= 0 else None
-                down = [i,j+1] if j+1 < len(self.all_cells[0]) else None
-                directions = [up,down,left,right]
-
-                unvisited_directions = list(filter(lambda x: x and not self.all_cells[x[0]][x[1]]._visited, directions))
+                unvisited_directions = self.get_unvisited_directions(i,j)
 
                 if not unvisited_directions:
                     self.draw_cell(self.all_cells[i][j],0.05)
@@ -60,19 +54,19 @@ class Maze:
 
                 random_direction = random.choice(unvisited_directions)
 
-                if random_direction == left:
+                if random_direction == [i-1,j]:
                     self.all_cells[i][j].has_left_wall = False
                     self.all_cells[i-1][j].has_right_wall = False
 
-                if random_direction == right:
+                if random_direction == [i+1,j]:
                     self.all_cells[i][j].has_right_wall = False
                     self.all_cells[i+1][j].has_left_wall = False
 
-                if random_direction == up:
+                if random_direction == [i,j-1]:
                     self.all_cells[i][j].has_top_wall = False
                     self.all_cells[i][j-1].has_bottom_wall = False
 
-                if random_direction == down:
+                if random_direction == [i,j+1]:
                     self.all_cells[i][j].has_bottom_wall = False
                     self.all_cells[i][j+1].has_top_wall = False
                     
@@ -104,3 +98,46 @@ class Maze:
         for cell_coll in self.all_cells:
             for cell in cell_coll:
                 cell._visited = False
+            
+    def solve(self):
+        return self.solve_r(0,0)
+    
+    def solve_r(self,i,j):        
+        if i == len(self.all_cells)-1 and j == len(self.all_cells[0])-1: return True
+        
+        self.all_cells[i][j]._visited = True
+
+        unvisited_directions = self.get_unvisited_directions(i,j,ignore_walls=False)
+
+        for direction in unvisited_directions:
+            
+            self.all_cells[i][j].draw_move(self.all_cells[direction[0]][direction[1]])
+            if self.solve_r(direction[0],direction[1]): return True
+            self.all_cells[i][j].draw_move(self.all_cells[direction[0]][direction[1]],True)
+        
+        return False
+    
+    def get_unvisited_directions(self,i,j,ignore_walls=True):
+        left = [i-1,j] if i-1 >= 0 else None
+        right = [i+1,j] if i+1 < len(self.all_cells) else None
+        up = [i,j-1] if j-1 >= 0 else None
+        down = [i,j+1] if j+1 < len(self.all_cells[0]) else None
+
+        directions = []
+
+        if ignore_walls:
+            directions = [up,down,left,right]
+            return list(filter(lambda x: x and not self.all_cells[x[0]][x[1]]._visited, directions))
+        else:
+            cell = self.all_cells[i][j]
+            if not cell.has_left_wall: directions.append(left)
+            if not cell.has_right_wall: directions.append(right)
+            if not cell.has_top_wall: directions.append(up)
+            if not cell.has_bottom_wall: directions.append(down)
+        
+        return list(filter(lambda x: x and not self.all_cells[x[0]][x[1]]._visited, directions))
+
+        
+        
+
+
