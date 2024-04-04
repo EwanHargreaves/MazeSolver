@@ -13,6 +13,7 @@ class Cell:
         self._y2 = None
         self._win =window
         self._setup = None
+        self._visited = False
     
     def set_points(self,point1,point2):
         self._x1 = point1.x
@@ -23,6 +24,7 @@ class Cell:
 
     def draw(self):
         if not self._setup: raise ValueError("Points for cell not set before draw")
+        if not self._win: return #testing
 
         top_left = Point(self._x1,self._y1)
         top_right = Point(self._x2,self._y1)
